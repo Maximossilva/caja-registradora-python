@@ -1,12 +1,14 @@
-from persistencia import cargar_productos_csv, guardar_productos_csv,guardar_ventas_csv
-from pagos import calcular_total, recargo_tarjeta,calcular_total_carrito,calcular_vuelto
-from productos import actualizar_stock,productos as productos_default
-from socios import validar_socio, aplicar_descuento_socio
-from config import IVA,DESCUENTO_SOCIO,RECARGO_TARJETA
-from ventas import agregar_productos
+import persistencia
+import pagos   
+import productos 
+import socios 
+import config 
+import ventas
+
 
         
 carrito = {}
+
 
 def solicitar_datos_socio():
     es_socio = input("Es socio del super? (si/no): ").lower()
@@ -54,7 +56,7 @@ def procesar_pago_efectivo(total):
             print("Ingrese un numero valido")      
                 
                 
-    vuelto = calcular_vuelto(pago_acumulado, total)      
+    vuelto = pagos.calcular_vuelto(pago_acumulado, total)      
         
     if vuelto > 0:
         print(f"Su vuelto es ${vuelto:.2f}")
@@ -67,7 +69,7 @@ def imprimir_ticket(carrito,total):
     print("="*30)
     
     for producto, info in carrito.items():
-        subtotal = calcular_total(
+        subtotal = pagos.calcular_total(
                     info['precio'],
                     info['cantidad'],
                     info['descuento']
@@ -81,12 +83,12 @@ def imprimir_ticket(carrito,total):
     
 def procesar_compra(carrito):
     
-    total = calcular_total_carrito(carrito)
+    total = pagos.calcular_total_carrito(carrito)
     
     usuario, contraseña = solicitar_datos_socio()
     if usuario is not None:
-        if validar_socio(usuario,contraseña):
-            total = aplicar_descuento_socio(total)
+        if socios.validar_socio(usuario,contraseña):
+            total = socios.aplicar_descuento_socio(total)
             print(f"Descuento aplicado, TOTAL CON DESCUENTO: ${total:.2f}")
         else:
             print("Usuario o contraseña incorrectos")
@@ -96,25 +98,25 @@ def procesar_compra(carrito):
     metodo = solicitar_metodo_pago()
     
     if metodo == "2":
-        total = recargo_tarjeta(total)
+        total = pagos.recargo_tarjeta(total)
         print(f"Pago realizado con tarjeta: ${total:.2f}")
         print("Pago realizado correctamente!")
     else:
         procesar_pago_efectivo(total)
         print("Muchas gracias!")  
     
-    guardar_ventas_csv(carrito,total)    
+    persistencia.guardar_ventas_csv(carrito,total)    
                  
               
 print("="*40)
 print("    BIENVENIDO AL SUPERMERCADO")
 print("="*40)
 
-productos = cargar_productos_csv()
+productos = persistencia.cargar_productos_csv()
 
 if not productos:
-    productos = productos_default
-    guardar_productos_csv(productos)
+    productos = ventas.productos_default()
+    persistencia.guardar_productos_csv(productos)
 
 while True:
     producto = input("Ingrese su producto (o 'salir' para terminar): ").strip().lower()
@@ -136,18 +138,16 @@ while True:
         print("Porfavor ingrese un numero valido")
         continue
 
-    # Delegar logica de negocio a ventas.py
-    resultado = agregar_productos(carrito, productos, producto, cantidad)
+    
+    resultado = ventas.agregar_productos(carrito,productos,producto,cantidad)
     print(resultado["mensaje"])
 
+if carrito:
+    resultado = ventas.confirmar_compra(carrito,productos)   
     if resultado["ok"]:
-        # Actualizar stock visual/csv en main (responsabilidad de persistencia local actual)
-        # Nota: agregar_productos valida pero no resta del 'stock real' (dict productos), 
-        # así que lo hacemos aquí para mantener consistencia hasta el guardado.
-        stock_actual = productos[producto]['stock']
-        nuevo_stock = actualizar_stock(stock_actual, cantidad)
-        productos[producto]['stock'] = nuevo_stock
-        guardar_productos_csv(productos)
+        persistencia.guardar_productos_csv(productos)
+        persistencia.guardar_ventas_csv(resultado["productos_actualizados"])
+        
 
     
       
@@ -157,4 +157,3 @@ if carrito:
 else:       
     print("No se realizaron compras. ¡Hasta pronto!")
 print("="*40)
-    
