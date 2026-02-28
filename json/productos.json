@@ -1,0 +1,192 @@
+[
+    {
+        "nombre": "Arroz Dia 500g",
+        "precio": 720,
+        "stock": 49
+    },
+    {
+        "nombre": "Arroz Dia 1kg",
+        "precio": 1260,
+        "stock": 20
+    },
+    {
+        "nombre": "Arroz Dia 2kg",
+        "precio": 2250,
+        "stock": 27
+    },
+    {
+        "nombre": "Arroz Gallo 500g",
+        "precio": 960,
+        "stock": 56
+    },
+    {
+        "nombre": "Arroz Gallo 1kg",
+        "precio": 1680,
+        "stock": 58
+    },
+    {
+        "nombre": "Arroz Gallo 2kg",
+        "precio": 3000,
+        "stock": 27
+    },
+    {
+        "nombre": "Arroz Lucchetti 500g",
+        "precio": 880,
+        "stock": 20
+    },
+    {
+        "nombre": "Arroz Lucchetti 1kg",
+        "precio": 1540,
+        "stock": 146
+    },
+    {
+        "nombre": "Arroz Lucchetti 2kg",
+        "precio": 2750,
+        "stock": 110
+    },
+    {
+        "nombre": "Fideos Dia 500g",
+        "precio": 630,
+        "stock": 32
+    },
+    {
+        "nombre": "Fideos Dia 1kg",
+        "precio": 1170,
+        "stock": 99
+    },
+    {
+        "nombre": "Fideos Matarazzo 500g",
+        "precio": 840,
+        "stock": 50
+    },
+    {
+        "nombre": "Fideos Matarazzo 1kg",
+        "precio": 1560,
+        "stock": 82
+    },
+    {
+        "nombre": "Leche La Serenisima 1L Entera",
+        "precio": 1560,
+        "stock": 76
+    },
+    {
+        "nombre": "Leche La Serenisima 1L Descremada",
+        "precio": 1560,
+        "stock": 80
+    },
+    {
+        "nombre": "Leche Ilolay 1L Entera",
+        "precio": 1320,
+        "stock": 105
+    },
+    {
+        "nombre": "Leche Ilolay 1L Descremada",
+        "precio": 1320,
+        "stock": 105
+    },
+    {
+        "nombre": "Leche Dia 1L Entera",
+        "precio": 1080,
+        "stock": 21
+    },
+    {
+        "nombre": "Leche Dia 1L Descremada",
+        "precio": 1080,
+        "stock": 21
+    },
+    {
+        "nombre": "Queso La Seren\u00edsima 500g",
+        "precio": 3900,
+        "stock": 62
+    },
+    {
+        "nombre": "Queso La Seren\u00edsima 1kg",
+        "precio": 7150,
+        "stock": 111
+    },
+    {
+        "nombre": "Queso Ilolay 500g",
+        "precio": 3300,
+        "stock": 98
+    },
+    {
+        "nombre": "Queso Ilolay 1kg",
+        "precio": 6050,
+        "stock": 145
+    },
+    {
+        "nombre": "Gaseosa Coca-Cola 500ml",
+        "precio": 1260,
+        "stock": 68
+    },
+    {
+        "nombre": "Gaseosa Coca-Cola Pack x6",
+        "precio": 12096,
+        "stock": 49
+    },
+    {
+        "nombre": "Gaseosa Coca-Cola 1.5L",
+        "precio": 2240,
+        "stock": 66
+    },
+    {
+        "nombre": "Gaseosa Pepsi 500ml",
+        "precio": 1080,
+        "stock": 141
+    },
+    {
+        "nombre": "Gaseosa Pepsi Pack x6",
+        "precio": 10368,
+        "stock": 24
+    },
+    {
+        "nombre": "Gaseosa Pepsi 1.5L",
+        "precio": 1920,
+        "stock": 101
+    },
+    {
+        "nombre": "Gaseosa Manaos 500ml",
+        "precio": 720,
+        "stock": 22
+    },
+    {
+        "nombre": "Gaseosa Manaos Pack x6",
+        "precio": 6912,
+        "stock": 42
+    },
+    {
+        "nombre": "Gaseosa Manaos 1.5L",
+        "precio": 1280,
+        "stock": 68
+    },
+    {
+        "nombre": "Agua Villa del Sur 500ml",
+        "precio": 720,
+        "stock": 126
+    },
+    {
+        "nombre": "Agua Villa del Sur Pack x6",
+        "precio": 6480,
+        "stock": 41
+    },
+    {
+        "nombre": "Agua Villa del Sur 1.5L",
+        "precio": 1200,
+        "stock": 47
+    },
+    {
+        "nombre": "Agua Eco 500ml",
+        "precio": 540,
+        "stock": 135
+    },
+    {
+        "nombre": "Agua Eco Pack x6",
+        "precio": 4860,
+        "stock": 32
+    },
+    {
+        "nombre": "Agua Eco 1.5L",
+        "precio": 900,
+        "stock": 43
+    }
+]

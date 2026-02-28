@@ -1,51 +1,53 @@
-# Sistema de Caja Registradora en Python
+# Sistema de Supermercado (Backend en evolución)
 
-Proyecto personal desarrollado para aprender arquitectura de software, separación de responsabilidades y gestión de estado en aplicaciones de consola.
-
-## Funcionalidades actuales
-
-- Gestión de productos y stock
-- Carrito de compras
-- Confirmación de venta
-- Actualización automática de inventario
-- Sistema de socios
-- Persistencia en archivos CSV
-- Módulo de estadísticas
-- Arquitectura modular (separación por capas)
-
-## Arquitectura
-
-El sistema está dividido en módulos:
-
-- main.py → flujo principal e interfaz
-- ventas.py → lógica de venta
-- productos.py → gestión de productos
-- persistencia.py → lectura y escritura de archivos
-- estadisticas.py → análisis de ventas
-- socios.py → gestión de socios
-
-Se aplicó separación entre:
-- lógica de negocio
-- interfaz
-- persistencia de datos
-
-## Lo que aprendí en este proyecto
-
-- Refactorización progresiva
-- Separación de responsabilidades
-- Manejo de estado mutable
-- Uso práctico de Git y control de versiones
-- Persistencia con CSV
-- Diseño orientado a escalabilidad
-
-## Próximos pasos
-
-- Implementar modo gerente
-- Introducir primeras clases (Carrito, Inventario)
-- Mejorar separación UI / lógica
-- Migrar ciertos datos a JSON si es necesario
-- Agregar análisis de productos más vendidos
+Proyecto personal orientado a aprender arquitectura de software,
+persistencia de datos y backend profesional en Python.
 
 ---
 
-Proyecto en evolución constante.
+## Estado actual
+
+Versión estable con:
+
+- Arquitectura modular
+- Persistencia en JSON
+- Flujo cliente (main)
+- Flujo gerente (main_gerente)
+- Gestión de productos
+- Gestión de proveedores
+- Registro de ventas
+- Sistema de caja
+- Registro de socios
+- Ticket de compra
+
+Próxima migración: SQLite como base de datos real.
+
+---
+
+## Arquitectura
+
+El proyecto está dividido en:
+
+- **Dominio** → Entidades (Producto, Venta, Socio, Caja, etc.)
+- **Servicios** → Lógica de negocio
+- **Persistencia** → Actualmente JSON (en transición a SQLite)
+- **Interfaz** → Consola (cliente y gerente)
+
+---
+
+## Objetivos del proyecto
+
+- Migrar de JSON a SQLite
+- Implementar relaciones reales con claves foráneas
+- Soporte para múltiples cajas
+- Estadísticas de ventas
+- Exponer API REST con FastAPI
+- Deploy en la nube
+- Frontend simple conectado al backend
+
+---
+
+## Cómo ejecutar
+
+```bash
+python main.py

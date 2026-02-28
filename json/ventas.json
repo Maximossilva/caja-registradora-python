@@ -1,0 +1,192 @@
+[
+    {
+        "id": 1,
+        "fecha": "2026-02-27 15:34:52",
+        "items": [
+            {
+                "nombre": "Gaseosa Manaos 1.5L",
+                "precio": 1280,
+                "cantidad": 1
+            }
+        ],
+        "subtotal": 1280,
+        "iva": 268.8,
+        "descuento": 0,
+        "total": 1548.8,
+        "metodo_pago": "efectivo",
+        "es_socio": false
+    },
+    {
+        "id": 2,
+        "fecha": "2026-02-27 15:36:56",
+        "items": [
+            {
+                "nombre": "Gaseosa Coca-Cola 500ml",
+                "precio": 1260,
+                "cantidad": 1
+            }
+        ],
+        "subtotal": 1260,
+        "iva": 264.6,
+        "descuento": 0,
+        "total": 1524.6,
+        "metodo_pago": "efectivo",
+        "es_socio": false
+    },
+    {
+        "id": 3,
+        "fecha": "2026-02-27 15:38:00",
+        "items": [
+            {
+                "nombre": "Fideos Dia 500g",
+                "precio": 630,
+                "cantidad": 11
+            },
+            {
+                "nombre": "Leche La Serenisima 1L Entera",
+                "precio": 1560,
+                "cantidad": 1
+            }
+        ],
+        "subtotal": 8490,
+        "iva": 1782.9,
+        "descuento": 0,
+        "total": 10272.9,
+        "metodo_pago": "efectivo",
+        "es_socio": false
+    },
+    {
+        "id": 4,
+        "fecha": "2026-02-27 15:39:15",
+        "items": [
+            {
+                "nombre": "Gaseosa Coca-Cola 500ml",
+                "precio": 1260,
+                "cantidad": 1
+            }
+        ],
+        "subtotal": 1260,
+        "iva": 264.6,
+        "descuento": 0,
+        "total": 1677.06,
+        "metodo_pago": "tarjeta",
+        "es_socio": false
+    },
+    {
+        "id": 5,
+        "fecha": "2026-02-27 15:43:54",
+        "items": [
+            {
+                "nombre": "Leche La Serenisima 1L Entera",
+                "precio": 1560,
+                "cantidad": 1
+            }
+        ],
+        "subtotal": 1560,
+        "iva": 327.6,
+        "descuento": 0,
+        "total": 1887.6,
+        "metodo_pago": "efectivo",
+        "es_socio": false
+    },
+    {
+        "id": 6,
+        "fecha": "2026-02-27 15:44:16",
+        "items": [
+            {
+                "nombre": "Leche La Serenisima 1L Entera",
+                "precio": 1560,
+                "cantidad": 1
+            },
+            {
+                "nombre": "Fideos Dia 500g",
+                "precio": 630,
+                "cantidad": 1
+            }
+        ],
+        "subtotal": 2190,
+        "iva": 459.9,
+        "descuento": 0,
+        "total": 2914.89,
+        "metodo_pago": "tarjeta",
+        "es_socio": false
+    },
+    {
+        "id": 7,
+        "fecha": "2026-02-27 15:44:41",
+        "items": [
+            {
+                "nombre": "Leche La Serenisima 1L Entera",
+                "precio": 1560,
+                "cantidad": 1
+            },
+            {
+                "nombre": "Fideos Dia 500g",
+                "precio": 630,
+                "cantidad": 1
+            },
+            {
+                "nombre": "Gaseosa Coca-Cola 1.5L",
+                "precio": 2240,
+                "cantidad": 2
+            }
+        ],
+        "subtotal": 6670,
+        "iva": 1400.7,
+        "descuento": 0,
+        "total": 8877.77,
+        "metodo_pago": "tarjeta",
+        "es_socio": false
+    },
+    {
+        "id": 8,
+        "fecha": "2026-02-27 15:46:24",
+        "items": [
+            {
+                "nombre": "Fideos Matarazzo 500g",
+                "precio": 840,
+                "cantidad": 1
+            }
+        ],
+        "subtotal": 840,
+        "iva": 176.4,
+        "descuento": 0,
+        "total": 1118.04,
+        "metodo_pago": "tarjeta",
+        "es_socio": false
+    },
+    {
+        "id": 9,
+        "fecha": "2026-02-27 15:48:05",
+        "items": [
+            {
+                "nombre": "Gaseosa Manaos 1.5L",
+                "precio": 1280,
+                "cantidad": 1
+            }
+        ],
+        "subtotal": 1280,
+        "iva": 268.8,
+        "descuento": 0,
+        "total": 1703.68,
+        "metodo_pago": "tarjeta",
+        "es_socio": false
+    },
+    {
+        "id": 10,
+        "fecha": "2026-02-27 16:09:21",
+        "items": [
+            {
+                "nombre": "Agua Villa del Sur 500ml",
+                "precio": 720,
+                "cantidad": 1
+            }
+        ],
+        "subtotal": 720,
+        "iva": 151.2,
+        "descuento": 0,
+        "total": 958.32,
+        "metodo_pago": "tarjeta",
+        "es_socio": false
+    }
+]

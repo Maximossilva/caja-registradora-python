@@ -1,19 +1,24 @@
 # main.py
+#
+# Punto de entrada del flujo CLIENTE (cajero): ver productos, agregar al carrito, finalizar compra.
+# La reposición de stock (gerente) no va aquí: ver main_gerente.py o ejecutar ServicioCompra por otro medio.
 
 from registro_socio import RegistroSocio
 from sesion_venta import SesionVenta
 from inventario import Inventario
 from registro_ventas import RegistroVentas
-from carrito import Carrito  # ← Importar explícitamente
-from ticket import Ticket     # ← Nueva clase
+from carrito import Carrito
+from ticket import Ticket
+from caja import Caja
 
 
 def main():
+    # --- Flujo cliente: solo ventas. Reposición en main_gerente.py ---
     inventario = Inventario()
     registro_socio = RegistroSocio()
     registro_ventas = RegistroVentas()
-    
-    # Crear carrito ANTES de sesión
+    caja = Caja()
+
     carrito = Carrito()
     sesion = SesionVenta(inventario, registro_ventas)
     sesion.iniciar_venta(carrito)
@@ -30,7 +35,7 @@ def main():
         print("1. Mostrar productos")
         print("2. Agregar producto")
         print("3. Finalizar compra")
-        print("=======================================\n")
+        print("==================================\n")
 
         opcion = input("Seleccione una opción: ")
 
@@ -74,10 +79,8 @@ def main():
 
             resultado = sesion.agregar_producto(nombre_elegido, cantidad)
 
-            if resultado:
-                print(" Producto agregado al carrito correctamente.")
-            else:
-                print(" No se pudo agregar el producto.")
+            # SesionVenta ya no imprime; devuelve un ResultadoOperacion
+            print(resultado.mensaje)
 
         # ---------------- FINALIZAR COMPRA ----------------
         elif opcion == "3":
@@ -120,15 +123,17 @@ def main():
             subtotal, iva, descuento, total = sesion.calcular_totales(socio_autenticado)
 
             print("\n========== RESUMEN DE COMPRA ==========")
-            print(f"Subtotal:  ${subtotal:.2f}")
-            print(f"IVA (21%): ${iva:.2f}")
+            for item in carrito.listar():
+                print(f"{item.cantidad}x {item.producto.nombre}")
+            print("---------------------------------------")
+            print(f"Subtotal: ${subtotal:.2f}")
+            print("---------------------------------------")
+            print(f"TOTAL A PAGAR: ${total:.2f}")
+            print("=======================================\n")
             
             if descuento > 0:
                 print(f"Descuento: -${descuento:.2f}")
             
-            print("---------------------------------------")
-            print(f"TOTAL A PAGAR: ${total:.2f}")
-            print("=======================================\n")
 
             # -------- PAGO EN EFECTIVO --------
             if metodo_pago == "1":
@@ -155,31 +160,26 @@ def main():
                 if vuelto > 0:
                     print(f"\n✓ Su vuelto es: ${vuelto:.2f}")
 
-            # Confirmar pago
+            # --- Ticket y caja: datos ANTES de confirmar ---
+            # confirmar_pago() vacía el carrito; si armáramos el ticket después, carrito.listar() sería [].
+            # Decisión: guardar items y totales antes, luego confirmar, luego construir el ticket con esos datos.
+            items_para_ticket = [item.to_dict() for item in carrito.listar()]
+            metodo_str = "efectivo" if metodo_pago == "1" else "tarjeta"
+
             try:
-                sesion.confirmar_pago(
-                    "efectivo" if metodo_pago == "1" else "tarjeta",
-                    socio_autenticado
-                )
-                
-                # ← CAMBIO: Usar nueva clase Ticket
-                # Obtener items como lista de dicts
-                items_dict = [item.to_dict() for item in carrito.listar()]
-                
+                sesion.confirmar_pago(metodo_str, socio_autenticado)
+                # Ingreso en caja: usar la instancia caja, no la clase Caja. Antes estaba Caja.ingresar(total) y fallaba.
+                caja.ingresar(total)
+
                 ticket = Ticket(
-                    items=items_dict,
+                    items=items_para_ticket,
                     subtotal=subtotal,
                     iva=iva,
                     descuento=descuento,
                     total=total,
-                    metodo_pago="efectivo" if metodo_pago == "1" else "tarjeta"
+                    metodo_pago=metodo_str
                 )
-                
-                # Imprimir ticket
                 ticket.imprimir()
-                
-                # Opcional: Guardar en archivo
-                #ticket.guardar_archivo(f"ticket_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt")
 
                 print("\n✅ Compra finalizada con éxito.")
                 print("   Gracias por su compra.\n")

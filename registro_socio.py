@@ -1,10 +1,11 @@
 import json
 import uuid
 from socio import Socio
-from super import socio
+from config import PATH_SOCIOS
+
 
 class RegistroSocio:
-    def __init__(self,ruta_archivo="socios.json"):
+    def __init__(self, ruta_archivo=PATH_SOCIOS):
         self._ruta = ruta_archivo
         self._socios = {}
         self._cargar()
@@ -22,13 +23,10 @@ class RegistroSocio:
             self._socios = {}
     
     def _guardar(self):
-        data = {}
-        
-        for usuario, socio in self._socios.items():
-            data[usuario] = socio.to_dict()
-        
+        # Lista de dicts para ser consistente con _cargar (que itera sobre la lista)
+        data = [socio.to_dict() for socio in self._socios.values()]
         with open(self._ruta, "w") as archivo:
-            json.dump(data,archivo,indent=4)
+            json.dump(data, archivo, indent=4)
             
     
     def agregar_socio(self,usuario,password):

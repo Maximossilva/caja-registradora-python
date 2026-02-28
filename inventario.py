@@ -1,15 +1,17 @@
 import json
 from producto import Producto
+from config import PATH_PRODUCTOS
+
 
 class Inventario:
-    def __init__(self, archivo = "productos.json"):
+    def __init__(self, archivo=PATH_PRODUCTOS):
         self.archivo = archivo
         self.productos = {}
         self.cargar()
         
     def cargar(self):
         try:
-            with open(self.archivo, "r") as f:
+            with open(self.archivo, "r", encoding="utf-8") as f:
                 datos = json.load(f)
                 
                 for item in datos:
@@ -19,7 +21,7 @@ class Inventario:
             self.productos = {}
     
     def guardar(self):
-        with open(self.archivo, "w") as f:
+        with open(self.archivo, "w", encoding="utf-8") as f:
             datos = [p.to_dict() for p in self.productos.values()]
             json.dump(datos,f,indent=4)
         

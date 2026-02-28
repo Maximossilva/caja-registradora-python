@@ -1,6 +1,22 @@
 # sesion_venta.py
 
+from dataclasses import dataclass
 from datetime import datetime
+
+
+@dataclass
+class ResultadoOperacion:
+    """
+    Resultado genérico de una operación de aplicación.
+    
+    Atributos:
+        exito (bool): True si la operación se realizó correctamente.
+        mensaje (str): Mensaje para mostrar al usuario o loguear.
+        datos (dict | None): Información adicional opcional.
+    """
+    exito: bool
+    mensaje: str
+    datos: dict | None = None
 
 
 class SesionVenta:
@@ -58,35 +74,40 @@ class SesionVenta:
             cantidad (int): Cantidad a agregar
         
         Returns:
-            bool: True si se agregó, False si hubo error
+            ResultadoOperacion: Indica si se pudo agregar y el motivo
         """
         # 1. Obtener el OBJETO Producto del inventario
         producto = self.inventario.obtener_producto(nombre_producto)
         
         # 2. Validar que existe
         if not producto:
-            print(f"❌ Producto '{nombre_producto}' no encontrado.")
-            return False
+            return ResultadoOperacion(
+                exito=False,
+                mensaje=f"❌ Producto '{nombre_producto}' no encontrado."
+            )
         
         # 3. Calcular cuánto queremos en total (lo del carrito + lo nuevo)
-        cantidad_en_carrito = 0
-        if nombre_producto in self.carrito.items:
-            cantidad_en_carrito = self.carrito.items[nombre_producto].cantidad
+        cantidad_en_carrito = self.carrito.cantidad_de(nombre_producto)
         
         cantidad_total_deseada = cantidad_en_carrito + cantidad
         
         # 4. Validar stock disponible
         if producto.stock < cantidad_total_deseada:
-            print(f"❌ Stock insuficiente de {nombre_producto}.")
-            print(f"   Disponible: {producto.stock}")
-            print(f"   Ya en carrito: {cantidad_en_carrito}")
-            print(f"   Solicitado: {cantidad}")
-            return False
+            mensaje = (
+                f"❌ Stock insuficiente de {nombre_producto}.\n"
+                f"   Disponible: {producto.stock}\n"
+                f"   Ya en carrito: {cantidad_en_carrito}\n"
+                f"   Solicitado: {cantidad}"
+            )
+            return ResultadoOperacion(exito=False, mensaje=mensaje)
         
         # 5. Todo OK → Agregar al carrito
         # IMPORTANTE: Pasamos el OBJETO producto, no solo el nombre
         self.carrito.agregar(producto, cantidad)
-        return True
+        return ResultadoOperacion(
+            exito=True,
+            mensaje="Producto agregado al carrito correctamente."
+        )
     
     def establecer_metodo_pago(self, metodo):
         """

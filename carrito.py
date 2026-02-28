@@ -142,6 +142,19 @@ class Carrito:
     def esta_vacio(self):
         """Verifica si el carrito está vacío."""
         return len(self.items) == 0
+
+    def cantidad_de(self, nombre):
+        """
+        Devuelve la cantidad actual de un producto en el carrito.
+        
+        Args:
+            nombre (str): Nombre del producto.
+        
+        Returns:
+            int: Cantidad en el carrito (0 si no existe).
+        """
+        item = self.items.get(nombre)
+        return item.cantidad if item else 0
     
     def cantidad_total_items(self):
         """

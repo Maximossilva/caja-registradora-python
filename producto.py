@@ -5,6 +5,11 @@ class Producto:
         self.stock = stock
         self.descuento = descuento
         
+    def __eq__(self, other):
+        if not isinstance(other, Producto):
+            return False
+        return self.nombre == other.nombre
+        
     def tiene_stock(self,cantidad):
         return self.stock >= cantidad
         

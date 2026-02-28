@@ -1,0 +1,14 @@
+[
+  {
+    "nombre_producto": "Arroz Dia 500g",
+    "nombre_proveedor": "Distribuidor Arroz SA",
+    "precio_compra": 600,
+    "stock_disponible": 200
+  },
+  {
+    "nombre_producto": "Fideos Matarazzo 500g",
+    "nombre_proveedor": "Mayorista Pasta",
+    "precio_compra": 700,
+    "stock_disponible": 143
+  }
+]
