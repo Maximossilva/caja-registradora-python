@@ -2,10 +2,14 @@
 #
 # Punto de entrada del flujo CLIENTE (cajero): ver productos, agregar al carrito, finalizar compra.
 # La reposición de stock (gerente) no va aquí: ver main_gerente.py o ejecutar ServicioCompra por otro medio.
+#
+# Multi-branch: branch_id y cash_register_id se inyectan al crear los servicios.
+# Para cambiar de sucursal, solo hay que cambiar estos valores.
 
+from database.init_db import init_database
 from registro_socio import RegistroSocio
 from sesion_venta import SesionVenta
-from inventario import Inventario
+from inventario_sqlite import InventarioSQLite
 from registro_ventas import RegistroVentas
 from carrito import Carrito
 from ticket import Ticket
@@ -13,11 +17,18 @@ from caja import Caja
 
 
 def main():
-    # --- Flujo cliente: solo ventas. Reposición en main_gerente.py ---
-    inventario = Inventario()
+    # Inicializar BD (crea tablas y datos semilla si no existen)
+    init_database()
+
+    # Configuración de sucursal: cambiar estos valores para operar otra sucursal
+    BRANCH_ID = 1            # Sucursal Centro
+    CASH_REGISTER_ID = 1     # Caja 1 de esa sucursal
+
+    # --- Inyectar branch_id en todos los servicios ---
+    inventario = InventarioSQLite(branch_id=BRANCH_ID)
     registro_socio = RegistroSocio()
-    registro_ventas = RegistroVentas()
-    caja = Caja()
+    registro_ventas = RegistroVentas(branch_id=BRANCH_ID, cash_register_id=CASH_REGISTER_ID)
+    caja = Caja(cash_register_id=CASH_REGISTER_ID)
 
     carrito = Carrito()
     sesion = SesionVenta(inventario, registro_ventas)
@@ -46,7 +57,7 @@ def main():
         # ---------------- AGREGAR PRODUCTO ----------------
         elif opcion == "2":
             texto = input("\nIngrese el nombre del producto: ")
-            resultados = inventario.buscar_por_nombre(texto)
+            resultados = inventario.vender_producto(texto,cantidad=0)
 
             if not resultados:
                 print("Producto no encontrado.")
@@ -168,8 +179,9 @@ def main():
 
             try:
                 sesion.confirmar_pago(metodo_str, socio_autenticado)
-                # Ingreso en caja: usar la instancia caja, no la clase Caja. Antes estaba Caja.ingresar(total) y fallaba.
-                caja.ingresar(total)
+                # Ya NO se llama a caja.ingresar() aquí.
+                # El saldo se actualiza DENTRO de la transacción atómica
+                # (en process_sale_atomic), junto con stock y venta.
 
                 ticket = Ticket(
                     items=items_para_ticket,
@@ -181,7 +193,7 @@ def main():
                 )
                 ticket.imprimir()
 
-                print("\n✅ Compra finalizada con éxito.")
+                print("\n Compra finalizada con exito.")
                 print("   Gracias por su compra.\n")
 
             except ValueError as e:

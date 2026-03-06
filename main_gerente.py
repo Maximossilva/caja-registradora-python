@@ -6,22 +6,28 @@
 #
 # Uso: python main_gerente.py
 
-from inventario import Inventario
+from database.init_db import init_database
+from inventario_sqlite import InventarioSQLite
 from caja import Caja
 from gestor_proveedor import GestorProveedor
 from servicio_compra import ServicioCompra
 
 
 def main():
-    inventario = Inventario()
-    caja = Caja()
+    # Inicializar BD (crea tablas y datos semilla si no existen)
+    init_database()
+
+    # Configuración de sucursal
+    BRANCH_ID = 1
+    CASH_REGISTER_ID = 1
+
+    inventario = InventarioSQLite(branch_id=BRANCH_ID)
+    caja = Caja(cash_register_id=CASH_REGISTER_ID)
     gestor_proveedor = GestorProveedor(inventario)
-    servicio_compra = ServicioCompra(gestor_proveedor, caja)
+    servicio_compra = ServicioCompra(gestor_proveedor, caja, inventario)
 
     print("=== Reposición de stock (gerente) ===\n")
-    print("Saldo en caja:", caja.saldo_actual())
-    # Para pruebas: descomentar la línea siguiente para dar saldo inicial (ej. 50000).
-    caja.ingresar(50000)
+    print("Saldo en caja:", caja.obtener_saldo())
     
 
     while True:
@@ -43,7 +49,6 @@ def main():
         try:
             costo = servicio_compra.reponer_producto(producto, cantidad)
             gestor_proveedor.guardar()
-            inventario.guardar()
             print(f"✓ Repuestos {cantidad} unidades de {producto.nombre}. Costo: ${costo:.2f}\n")
         except ValueError as e:
             print(f"Error: {e}\n")
@@ -51,3 +56,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+   
