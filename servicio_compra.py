@@ -1,13 +1,15 @@
+from inventario_sqlite import InventarioSQLite
 class ServicioCompra:
     """
     Caso de uso: compra a proveedores (reposición de stock).
     No imprime nada; devuelve datos o lanza excepciones. Así sirve igual para CLI o API.
     """
 
-    def __init__(self, gestor_proveedor, caja):
+    def __init__(self, gestor_proveedor, caja, inventario):
         self.gestor_proveedor = gestor_proveedor
         self.caja = caja
-
+        self.inventario = inventario
+        
     def reponer_producto(self, producto, cantidad):
         # --- Validación temprana de cantidad ---
         # Decisión: validar aquí además de en la UI. Así la regla está en un solo lugar
@@ -39,10 +41,10 @@ class ServicioCompra:
         # Antes se usaba self.capital (no existía) y fallaba en ejecución.
         # Decisión: usar self.caja.saldo_actual() y dar un mensaje claro (cuánto falta, cuánto hay).
         # Alternativa: solo llamar a retirar() y dejar que Caja lance; es válido, pero el mensaje es menos informativo.
-        if self.caja.saldo_actual() < costo_total:
+        if self.caja.obtener_saldo() < costo_total:
             raise ValueError(
                 f"Capital insuficiente para comprar {cantidad} de {producto.nombre}. "
-                f"Necesita: ${costo_total:.2f}, saldo: ${self.caja.saldo_actual():.2f}"
+                f"Necesita: ${costo_total:.2f}, saldo: ${self.caja.obtener_saldo():.2f}"
             )
 
         # --- Orden de operaciones: retirar → descontar proveedor → agregar al producto ---
@@ -50,8 +52,7 @@ class ServicioCompra:
         # Para un proyecto con BD sería un flujo transaccional; con JSON es aceptable así por ahora.
         self.caja.retirar(costo_total)
         proveedor_elegido.descontar_stock(cantidad)
-        producto.agregar_stock(cantidad)
+        self.inventario.aumentar_stock(producto.nombre, cantidad)
 
         return costo_total
-        
-        
+            

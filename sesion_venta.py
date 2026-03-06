@@ -172,18 +172,18 @@ class SesionVenta:
         """
         Confirma el pago y cierra la venta.
         
-        FLUJO:
+        FLUJO ATÓMICO:
         1. Valida que no esté cerrada
         2. Valida que hay items
         3. Calcula totales
-        4. Reduce stock en inventario (SI FALLA, lanza excepción)
-        5. Registra venta en JSON
-        6. Vacía carrito y marca como cerrada
+        4. Registra venta ATÓMICAMENTE (stock + sale + items + caja en 1 transacción)
+        5. Vacía carrito y marca como cerrada
         
-        ¿Por qué NO validamos stock aquí?
-        - Ya se validó en agregar_producto()
-        - Si falla reducir_stock(), Producto.reducir_stock() lanza excepción automáticamente
-        - ELIMINAMOS validación duplicada
+        CAMBIO IMPORTANTE vs versión anterior:
+        Ya NO se llama a inventario.reducir_stock() por separado.
+        Ahora registro_venta.registrar_venta() hace TODO atómicamente:
+        verificar stock + reducir stock + crear venta + actualizar caja.
+        Si no hay stock → ValueError + ROLLBACK (nada se modifica).
         
         Returns:
             tuple: (subtotal, iva, descuento, total)
@@ -202,16 +202,12 @@ class SesionVenta:
         # 4. Calcular totales
         subtotal, iva, descuento, total = self.calcular_totales(socio)
         
-        # 5. Reducir stock (si falla, producto.reducir_stock() lanza ValueError)
-        for item in self.carrito.listar():
-            # ELIMINADO: Validación duplicada de stock
-            # Ya se validó en agregar_producto()
-            # Si no hay stock, reducir_stock() lanzará excepción
-            self.inventario.reducir_stock(item.producto.nombre, item.cantidad)
-        
-        # 6. Registrar venta en JSON
-        # Convertimos items a dict para guardar (snapshot del momento)
+        # 5. Registrar venta ATÓMICAMENTE
+        # ANTES: se reducía stock aquí y se creaba la venta por separado (race condition)
+        # AHORA: todo se hace en UNA transacción dentro de registrar_venta()
         items_dict = [item.to_dict() for item in self.carrito.listar()]
+        
+        socio_id = socio.id if socio else None
         
         self.registro_venta.registrar_venta(
             items=items_dict,
@@ -220,10 +216,11 @@ class SesionVenta:
             descuento=descuento,
             total=total,
             metodo_pago=metodo_pago,
-            es_socio=socio is not None
+            es_socio=socio is not None,
+            socio_id=socio_id
         )
         
-        # 7. Vaciar carrito y marcar como cerrada
+        # 6. Vaciar carrito y marcar como cerrada
         self.carrito.vaciar()
         self.venta_cerrada = True
         

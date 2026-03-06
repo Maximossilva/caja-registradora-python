@@ -1,77 +1,113 @@
-import json
-from pathlib import Path
+# gestor_proveedor.py
+#
+# Gestiona relaciones producto-proveedor desde SQLite.
+# Usa las tablas supplier y product_supplier del nuevo schema.
 
+from database import producto_repository
 from producto_proveedor import ProductoProveedor
 from proveedor import Proveedor
-
-# Ruta por defecto; se puede inyectar para tests o otro entorno.
-try:
-    from config import PATH_PROVEEDORES_PRODUCTOS
-except ImportError:
-    PATH_PROVEEDORES_PRODUCTOS = Path("json") / "proveedores_productos.json"
 
 
 class GestorProveedor:
     """
-    Mantiene las relaciones producto–proveedor (quién vende qué, a qué precio y con qué stock).
-    Carga y guarda en JSON: así hay datos iniciales y el stock del proveedor persiste tras reponer.
+    Gestiona relaciones producto-proveedor desde SQLite.
+    Usa las tablas supplier y product_supplier (antes: proveedor y producto_proveedor).
     """
 
-    def __init__(self, inventario, archivo=PATH_PROVEEDORES_PRODUCTOS):
-        # inventario: para resolver nombre_producto (string en JSON) -> objeto Producto al cargar.
+    def __init__(self, inventario):
+        # inventario: InventarioSQLite (para búsquedas de productos)
         self.inventario = inventario
-        self.archivo = Path(archivo) if isinstance(archivo, str) else archivo
         self.relaciones = []
-        self._proveedores = {}  # nombre_proveedor -> Proveedor (reutilizar misma instancia)
+        self._proveedores_cache = {}
         self._cargar()
 
     def _cargar(self):
-        """Carga relaciones desde JSON. Solo incluye filas cuyo producto exista en inventario."""
-        try:
-            with open(self.archivo, "r", encoding="utf-8") as f:
-                datos = json.load(f)
-        except FileNotFoundError:
-            return
-        for row in datos:
-            nombre_producto = row.get("nombre_producto")
-            nombre_proveedor = row.get("nombre_proveedor")
-            producto = self.inventario.obtener_producto(nombre_producto) if nombre_producto else None
-            if producto is None:
-                continue
-            proveedor = self._proveedores.get(nombre_proveedor)
-            if proveedor is None:
-                proveedor = Proveedor(nombre_proveedor)
-                self._proveedores[nombre_proveedor] = proveedor
-            rel = ProductoProveedor(
-                producto, proveedor,
-                row["precio_compra"],
-                row["stock_disponible"]
-            )
-            self.relaciones.append(rel)
+        """Carga todas las relaciones desde SQLite usando tablas en inglés"""
+        self.relaciones = []
+        self._proveedores_cache = {}
+
+        # Obtener todos los proveedores activos (tabla supplier)
+        todos_proveedores = producto_repository.get_all_suppliers()
+
+        for proveedor_id, nombre_proveedor in todos_proveedores:
+            # Crear objeto Proveedor una sola vez
+            proveedor_obj = Proveedor(nombre_proveedor)
+            proveedor_obj.id = proveedor_id
+            self._proveedores_cache[nombre_proveedor] = proveedor_obj
+
+            # Obtener relaciones de este proveedor (tabla product_supplier)
+            relaciones_bd = producto_repository.get_relations_by_supplier(proveedor_id)
+
+            for relacion_id, producto_id, nombre_producto, precio_compra, stock_disponible in relaciones_bd:
+                # Obtener objeto Producto desde el inventario
+                producto = self.inventario.obtener_producto(nombre_producto)
+
+                if producto:
+                    rel = ProductoProveedor(
+                        producto=producto,
+                        proveedor=proveedor_obj,
+                        precio_compra=precio_compra,
+                        stock_disponible=stock_disponible
+                    )
+                    rel.id_relacion = relacion_id
+                    self.relaciones.append(rel)
 
     def guardar(self):
-        """Persiste relaciones (incluido stock actual) en JSON. Llamar tras reponer o agregar_relacion."""
-        # ensure_ascii=False para que "Serenísima" etc. se guarden como UTF-8 legible, no \u00ed.
-        with open(self.archivo, "w", encoding="utf-8") as f:
-            json.dump(
-                [
-                    {
-                        "nombre_producto": r.producto.nombre,
-                        "nombre_proveedor": r.proveedor.nombre,
-                        "precio_compra": r.precio_compra,
-                        "stock_disponible": r.stock_disponible,
-                    }
-                    for r in self.relaciones
-                ],
-                f, indent=2, ensure_ascii=False
-            )
+        """
+        Persiste cambios en la BD.
+        Usa set_supplier_stock para actualizar stock del proveedor.
+        """
+        for rel in self.relaciones:
+            if hasattr(rel, 'id_relacion'):
+                producto_repository.set_supplier_stock(
+                    rel.id_relacion,
+                    rel.stock_disponible
+                )
 
-    def agregar_relacion(self, producto, proveedor, precio, stock):
-        relacion = ProductoProveedor(producto, proveedor, precio, stock)
-        self.relaciones.append(relacion)
-        if proveedor.nombre not in self._proveedores:
-            self._proveedores[proveedor.nombre] = proveedor
-        self.guardar()
+    def agregar_relacion(self, nombre_producto, nombre_proveedor, precio_compra, stock_inicial=0):
+        """Agrega una nueva relación producto-proveedor a SQLite"""
+        # Obtener ID del producto global
+        producto_id = producto_repository.get_product_id_by_name(nombre_producto)
+
+        if not producto_id:
+            raise ValueError(f"Producto '{nombre_producto}' no encontrado")
+
+        # Obtener o crear proveedor (tabla supplier)
+        resultado = producto_repository.get_supplier_by_name(nombre_proveedor)
+        if resultado:
+            proveedor_id, _ = resultado
+        else:
+            proveedor_id = producto_repository.create_supplier(nombre_proveedor)
+
+        # Crear relación en BD (tabla product_supplier)
+        relacion_id = producto_repository.create_product_supplier_relation(
+            product_id=producto_id,
+            supplier_id=proveedor_id,
+            purchase_price=precio_compra,
+            initial_stock=stock_inicial
+        )
+
+        # Agregar a la lista en memoria
+        producto = self.inventario.obtener_producto(nombre_producto)
+        if not producto:
+            raise ValueError(f"No se pudo obtener producto '{nombre_producto}'")
+
+        if nombre_proveedor not in self._proveedores_cache:
+            proveedor = Proveedor(nombre_proveedor)
+            proveedor.id = proveedor_id
+            self._proveedores_cache[nombre_proveedor] = proveedor
+        else:
+            proveedor = self._proveedores_cache[nombre_proveedor]
+
+        rel = ProductoProveedor(
+            producto=producto,
+            proveedor=proveedor,
+            precio_compra=precio_compra,
+            stock_disponible=stock_inicial
+        )
+        rel.id_relacion = relacion_id
+        self.relaciones.append(rel)
 
     def buscar_por_producto(self, producto):
+        """Retorna todas las relaciones (proveedores que venden este producto)"""
         return [r for r in self.relaciones if r.producto == producto]
